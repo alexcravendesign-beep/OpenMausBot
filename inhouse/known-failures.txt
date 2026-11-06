@@ -1,3 +1,5 @@
 # vitest cases that fail on this box for environmental reasons, one per line, exactly as
 # inhouse/logs/full-test-<sha>.failures prints them:  server/foo.test.ts :: suite > case
 # full-test.sh ignores these. Keep it short and justify each line in CHANGELOG.md.
+server/cloud-lending-memory.e2e.test.ts :: his own line in a thread a bot opened gets the card; Allow lets that line through, and work handed in after shuts it again
+server/cloud-lending.e2e.test.ts :: the person's Mac, lent by itself through the real connector, is usable by the owner's conversations and routines, never by what a guest left behind, a webhook or a call through a bot's API

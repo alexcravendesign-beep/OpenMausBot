@@ -40,4 +40,5 @@ one per line as `full-test-<sha>.failures` prints them, each justified in CHANGE
 - VM 205 `openmaus-dev` 192.168.1.197 (tailnet 100.99.65.9) — this checkout at
   `/home/maus/OpenMausBot`, serves :8799. Work as `maus` (`sudo -iu maus`); `njl808` is the
   admin login. Files written as root or njl808 inside the checkout break the service.
+  Box setup the suite needs: `/usr/local/bin/node -> /usr/bin/node` (see CHANGELOG 2026-11-06).
 - VM 204 `openmaus`     192.168.1.196 — production, 11 bots, runs the installed package.
