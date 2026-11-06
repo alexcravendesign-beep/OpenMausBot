@@ -40,3 +40,10 @@ and still taking upstream releases (several a week) with a cheap rebase.
 Candidates with reasons, not a single answer. Push back when the ask fights the safety rules
 or the upstream shape, and say why in one paragraph. Ask for the priority list rather than
 inventing a roadmap; when given one, finish one feature completely before starting the next.
+
+## Tests (read inhouse/README.md, "Testing policy")
+- Before every commit on `inhouse`: `pnpm typecheck` and `pnpm vitest run --changed main`. Minutes.
+- New code ships with its own tests, or `--changed main` covers nothing.
+- Never run `pnpm test` in the foreground: the whole suite is ~3.5 h here. `inhouse/full-test.sh`
+  runs it detached and names every failing case; only add a case to `known-failures.txt` when
+  you can say in CHANGELOG.md why the box, not the code, fails it.
