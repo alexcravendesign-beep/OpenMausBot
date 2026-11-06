@@ -13,7 +13,7 @@ log=$LOG/full-test-$sha.log; json=$LOG/full-test-$sha.json; fails=$LOG/full-test
 rm -f "$LOG/full-test.ok"
 {
   echo "== full test of $sha started $(date '+%F %T')"
-  pnpm vitest run --reporter=dot --reporter=json --outputFile.json="$json"; v=$?
+  pnpm vitest run --testTimeout=60000 --reporter=dot --reporter=json --outputFile.json="$json"; v=$?  # 60 s: this VM is ~3x slower than upstream CI
   echo "== vitest exit $v  $(date +%T)"
   pnpm broker:test;          b=$?; echo "== broker:test exit $b  $(date +%T)"
   pnpm test:electron;        e=$?; echo "== test:electron exit $e  $(date +%T)"
