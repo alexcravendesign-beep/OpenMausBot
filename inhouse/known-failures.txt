@@ -1,0 +1,3 @@
+# vitest cases that fail on this box for environmental reasons, one per line, exactly as
+# inhouse/logs/full-test-<sha>.failures prints them:  server/foo.test.ts :: suite > case
+# full-test.sh ignores these. Keep it short and justify each line in CHANGELOG.md.
