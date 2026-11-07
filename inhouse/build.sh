@@ -13,4 +13,4 @@ echo "checkout: $(git log -1 --format="%h %ad %s" --date=short)"
 echo "== pnpm install $(date +%T)"; pnpm install --frozen-lockfile 2>&1 | tail -n 3
 echo "== build $(date +%T)"; pnpm build 2>&1 | tail -n 4
 echo "== build:server $(date +%T)"; pnpm build:server 2>&1 | tail -n 3
-echo "== done $(date +%T)"; ls -d dist dist-server cli.js 2>&1
+echo "== done $(date +%T)"; ls -d dist dist-server
