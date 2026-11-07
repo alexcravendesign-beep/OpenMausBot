@@ -2,6 +2,16 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-07 — bots a Chief creates get the New bot defaults' starter notes
+What: `server/starter-notes.ts` (new, 24 lines) writes each defaults memory file a bot lacks;
+`server/team-setup-requests.ts` (+6) calls an optional `seedBot` hook per created bot;
+`server/index.ts` (+2) wires it with the saved defaults. Unit test + an assertion in the hire e2e.
+Why: `create_bot` went through the store alone and hires started with no memory, so Alex's
+teammates missed the team brain (`brain-sync` was the stop-gap). Core files touched: 3 (32 lines).
+Verify: `pnpm vitest run server/starter-notes.test.ts server/team-setup.e2e.test.ts` green; live: hire
+a bot, its memory panel shows the topics. Branch `fix/chief-created-bots-starter-notes` off main,
+cherry-picked onto inhouse; upstream PR candidate. Kill question: a code path, not a prompt — stands.
+
 ## 2026-11-06 — first full suite on VM 205 read: 13 failures, 0 in our diff
 What: 10 npm-install cases (`server/engine-install.test.ts`, `server/harness/registry.test.ts`)
 failed because the test strips PATH to its stand-in npm and `augmentedPath()` re-adds
