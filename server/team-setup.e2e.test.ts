@@ -107,9 +107,13 @@ it("Clive sets up multi-provider teams at Ask with no card, keeps existing threa
 
     // A specialist Clive picks without being asked is added at once like a requested one: no card, nothing resumes Clive, and Undo removes it.
     token = await start("Does the team need anyone else?");
+    // A specialist the Chief creates starts with the New bot defaults' starter notes, like one made from New bot.
+    await api("PATCH", "/api/config", { newBotDefaults: { memory: { "memory/brand.md": "---\ntitle: Brand\n---\n\nnavy and cyan\n" } } });
     const picked = await api("POST", "/api/internal/create-bot", { name: "Scout", role: "Research scout", instructions: "Find and check sources.", suggestion: true }, 201, token);
     expect(picked).toMatchObject({ state: "applied", applied: true, name: "Scout" });
-    expect((await state()).find((bot: any) => bot.name === "Scout")).toMatchObject({ approvalMode: "full" });
+    const scout = (await state()).find((bot: any) => bot.name === "Scout");
+    expect(scout).toMatchObject({ approvalMode: "full" });
+    expect((await api("GET", `/api/bots/${scout.id}/memory/file?path=${encodeURIComponent("memory/brand.md")}`)).text).toBe("---\ntitle: Brand\n---\n\nnavy and cyan\n");
     await finish();
     expect(await decisionReplies(picked.requestId)).toBe(0);
     expect(await api("POST", `/api/threads/${chief.threadId}/undo`, { requestId: picked.requestId })).toEqual({ ok: true, undone: true });

@@ -89,6 +89,8 @@ interface Options {
   ownsThread(botId: string, threadId: string): boolean;
   /** `request` only for a reviewed deletion; Undo of a creation deletes without one. */
   deleteBot(botId: string, revalidate: () => void, request?: TeamSetupRequest): Promise<void>;
+  /** Called once for each bot a setup created, after the store saved it: starter notes and the like. */
+  seedBot?(botId: string, request: TeamSetupRequest): void;
 }
 
 type RequestFrom = { botId: string; name: string; color: string };
@@ -320,7 +322,11 @@ export class TeamSetupRequestService {
         this.validate(request, true, immediate);
       };
       revalidate();
-      if (!request.deletion) return this.options.store.applyTeamSetup(request);
+      if (!request.deletion) {
+        const result = this.options.store.applyTeamSetup(request);
+        for (const bot of result.bots) if (bot.action === "created") this.options.seedBot?.(bot.id, request);
+        return result;
+      }
       await this.options.deleteBot(request.deletion.botId, revalidate, request);
       return { state: "applied", bots: [{ id: request.deletion.botId, name: request.deletion.name, action: "deleted" }], newTeams: [] };
     } catch (error) {
