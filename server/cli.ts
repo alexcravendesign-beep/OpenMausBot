@@ -758,8 +758,8 @@ export async function runServe(options: CliOptions, log: (line: string) => void 
       if (!("failure" in served)) tailscaleShare = served;
       if (startupCancelled) throw new SetupCancelled();
       if ("failure" in served) throw new Error(`--tailscale: ${explainTailscaleFailure(served.failure)}`);
-      publicUrl = served.origin;
-      log(`tailscale: serving https://${tailscale.dnsName} → http://127.0.0.1:${options.port} (only your tailnet can reach it)`);
+      publicUrl = options.publicUrl ?? served.origin; // an explicit --public-url stays the advertised address; the tailnet share is a second door
+      log(`tailscale: serving https://${tailscale.dnsName} → http://127.0.0.1:${options.port} (only your tailnet can reach it)${options.publicUrl ? `; links and pairing codes keep advertising ${options.publicUrl}` : ""}`);
     }
     if (startupCancelled) throw new SetupCancelled();
     if (publicUrl) env.OMB_PUBLIC_URL = publicUrl;

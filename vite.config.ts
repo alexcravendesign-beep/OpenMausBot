@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { Connect, Plugin } from "vite";
 import { configDefaults, defineConfig } from "vitest/config";
@@ -31,6 +31,33 @@ function railPage(): Plugin {
   };
 }
 
+/**
+ * In-house: VITE_PRODUCT_NAME at build time renames the product in the page's own metadata (title, home-screen name,
+ * web manifest) so the served page never says MausBot. Unset (upstream, tests), nothing changes.
+ */
+function productNamePage(): Plugin | null {
+  const name = process.env.VITE_PRODUCT_NAME?.trim();
+  if (!name) return null;
+  const description = process.env.VITE_PRODUCT_DESCRIPTION?.trim();
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  let outDir = "dist";
+  return {
+    name: "inhouse-product-name",
+    configResolved: (config) => { outDir = config.build.outDir; },
+    transformIndexHtml: (html) => html
+      .replace(/<title>[^<]*<\/title>/, `<title>${esc(name)}</title>`)
+      .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(" \/>)/, `$1${esc(name)}$2`)
+      .replace(/(<link rel="manifest"[^>]*\/>)/, description ? `<meta name="description" content="${esc(description)}" />\n    $1` : "$1"),
+    closeBundle: () => {
+      const file = `${outDir}/manifest.webmanifest`;
+      try {
+        const manifest = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
+        writeFileSync(file, `${JSON.stringify({ ...manifest, name, short_name: name }, null, 2)}\n`);
+      } catch { /* no manifest in this build (tests, rail-only) */ }
+    },
+  };
+}
+
 const include = [
   "evals/**/*.test.ts",
   "server/**/*.test.ts",
@@ -45,7 +72,7 @@ const include = [
 ];
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), railPage()],
+  plugins: [react(), tailwindcss(), railPage(), ...(productNamePage() ? [productNamePage()!] : [])],
   build: {
     rollupOptions: { input: { index: page("./index.html"), rail: page("./rail.html") } },
   },

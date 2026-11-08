@@ -2,6 +2,9 @@
 set -euo pipefail
 export PATH=$HOME/.local/bin:$PATH
 export NODE_OPTIONS=--max-old-space-size=8192
+# The served page and UI call the product this, not MausBot (vite.config.ts productNamePage + src/lib/brand.ts).
+export VITE_PRODUCT_NAME="${VITE_PRODUCT_NAME:-Alex}"
+export VITE_PRODUCT_DESCRIPTION="${VITE_PRODUCT_DESCRIPTION:-Alex — the AI team at Craven Cooling and FridgeSmart}"
 cd ~
 [ -d OpenMausBot ] || git clone -q https://github.com/alexcravendesign-beep/OpenMausBot.git
 cd OpenMausBot

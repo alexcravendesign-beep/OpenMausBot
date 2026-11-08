@@ -16,7 +16,8 @@ export interface BrandStatus {
 
 export const DEFAULT_BRAND: Brand = { name: "OpenMausBot" };
 /** The product's name wherever a person reads it. OpenMausBot names only the open-source project and its repository. */
-export const PRODUCT_NAME = "MausBot";
+// In-house: VITE_PRODUCT_NAME at build time renames the product everywhere a person reads it; unset, upstream's MausBot.
+export const PRODUCT_NAME = (import.meta.env?.VITE_PRODUCT_NAME as string | undefined)?.trim() || "MausBot";
 
 let current: BrandStatus = { brand: DEFAULT_BRAND, source: "default", file: "" };
 
