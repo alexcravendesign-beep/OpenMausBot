@@ -2,6 +2,11 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — delete five tracked scratch `.mjs` files and ignore their folder (**upstream-shaped**)
+What: deleted the five tracked scratch files (`ext.mjs`, `r.mjs`, `r.mjs.bak`, `r.mjs.bak2`, `run.mjs`) from the temporary experiment folder and added the folder to `.gitignore` (+1 line).
+Why: five scratch scripts came in with an upstream commit and nothing references them. Core files touched: 1 (`.gitignore`, +1 line). **upstream-shaped**.
+Verify: `git status --ignored` shows the folder ignored and `git grep` for its name outside `docs/plans` and `.gitignore` is empty. Kill question: upstream-shaped cleanup — stands.
+
 ## 2026-11-08 — `inhouse/build.sh` no longer rewrites local git identity
 What: `inhouse/build.sh` (-2 lines) removes `git config user.name` and `git config user.email`; `server/full-test-script.test.ts` verifies `git config --local user.name` is untouched after a build run.
 Why: running a build should not mutate the repository's local git configuration. Core files touched: 0.
