@@ -2,6 +2,11 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — `inhouse/build.sh` no longer rewrites local git identity
+What: `inhouse/build.sh` (-2 lines) removes `git config user.name` and `git config user.email`; `server/full-test-script.test.ts` verifies `git config --local user.name` is untouched after a build run.
+Why: running a build should not mutate the repository's local git configuration. Core files touched: 0.
+Verify: `pnpm exec vitest run server/full-test-script.test.ts` passes. Kill question: build script hygiene — stands.
+
 ## 2026-11-08 — `inhouse/release.sh` removes `--to 204` production deploy branch
 What: `inhouse/release.sh` deletes the `scp`/`ssh` VM 204 install branch, updates the usage comment on line 2, and exits 2 with a one-line refusal before any build or install when given `--to 204` (or any arguments); `server/full-test-script.test.ts` adds refusal and local-path tests.
 Why: `inhouse/BRIEF.md` forbids running `release.sh --to 204` or sshing to production VM 204 from dev scripts; promotion to production is manual. Core files touched: 0.

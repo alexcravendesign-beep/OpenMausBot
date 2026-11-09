@@ -264,3 +264,39 @@ describe("inhouse/release.sh", () => {
   });
 });
 
+describe("inhouse/build.sh", () => {
+  const buildScriptPath = join(repoRoot, "inhouse/build.sh");
+
+  it("leaves git config --local user.name and user.email untouched", () => {
+    const dir = mkdtempSync(join(tmpdir(), "omb-build-test-"));
+    const repoDir = join(dir, "OpenMausBot");
+    const binDir = join(dir, "bin");
+    mkdirSync(join(repoDir, "inhouse"), { recursive: true });
+    mkdirSync(join(repoDir, "dist"), { recursive: true });
+    mkdirSync(join(repoDir, "dist-server"), { recursive: true });
+    mkdirSync(binDir, { recursive: true });
+
+    writeFileSync(join(repoDir, "inhouse/build.sh"), readFileSync(buildScriptPath, "utf8"), { mode: 0o755 });
+    spawnSync("git", ["init", "-q"], { cwd: repoDir });
+    spawnSync("git", ["remote", "add", "upstream", repoDir], { cwd: repoDir });
+    spawnSync("git", ["-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--allow-empty", "-q", "-m", "init"], { cwd: repoDir });
+    spawnSync("git", ["config", "--local", "user.name", "Custom Studio Author"], { cwd: repoDir });
+
+    writeFileSync(join(binDir, "pnpm"), "#!/usr/bin/env bash\nexit 0\n", { mode: 0o755 });
+
+    const res = spawnSync("bash", [join(repoDir, "inhouse/build.sh")], {
+      cwd: repoDir,
+      env: { ...process.env, HOME: dir, PATH: `${binDir}:${process.env.PATH ?? ""}` },
+      encoding: "utf8",
+    });
+
+    expect(res.status).toBe(0);
+    const localName = spawnSync("git", ["config", "--local", "user.name"], { cwd: repoDir, encoding: "utf8" });
+    const localEmail = spawnSync("git", ["config", "--local", "user.email"], { cwd: repoDir, encoding: "utf8" });
+    expect(localName.stdout.trim()).toBe("Custom Studio Author");
+    expect(localEmail.status).not.toBe(0);
+    removeTempDir(dir);
+  });
+});
+
+
