@@ -2,6 +2,11 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — `inhouse/full-test.sh` fails closed on vitest exit status and report errors
+What: `inhouse/full-test.sh` removes any stale JSON report before the run, checks the `node -e` JSON parser exit status and report structure, rejects suite-level failures or non-zero vitest exits with zero assertion failures, and exits non-zero on `RED`; `server/full-test-script.test.ts` (new, 189 lines) exercises synthetic reports (clean, allowed failure, unexpected failure, suite load error, truncated JSON, missing/stale file).
+Why: `full-test.sh` captured vitest's exit status `$v` without checking it, ignored JSON parser failures, and exited 0 after printing `RED`. Core files touched: 0 (1 test file added).
+Verify: `pnpm exec vitest run server/full-test-script.test.ts` passes all 6 cases in ~2 s. Kill question: release tooling hardening — stands.
+
 ## 2026-11-07 — bots a Chief creates get the New bot defaults' starter notes
 What: `server/starter-notes.ts` (new, 24 lines) writes each defaults memory file a bot lacks;
 `server/team-setup-requests.ts` (+6) calls an optional `seedBot` hook per created bot;
