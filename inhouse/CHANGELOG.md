@@ -2,6 +2,11 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — `inhouse/release.sh` removes `--to 204` production deploy branch
+What: `inhouse/release.sh` deletes the `scp`/`ssh` VM 204 install branch, updates the usage comment on line 2, and exits 2 with a one-line refusal before any build or install when given `--to 204` (or any arguments); `server/full-test-script.test.ts` adds refusal and local-path tests.
+Why: `inhouse/BRIEF.md` forbids running `release.sh --to 204` or sshing to production VM 204 from dev scripts; promotion to production is manual. Core files touched: 0.
+Verify: `inhouse/release.sh --to 204` prints a one-line refusal and exits 2 without side effects; `pnpm exec vitest run server/full-test-script.test.ts` passes. Kill question: safety enforcement — stands.
+
 ## 2026-11-08 — `inhouse/full-test.sh` fails closed on vitest exit status and report errors
 What: `inhouse/full-test.sh` removes any stale JSON report before the run, checks the `node -e` JSON parser exit status and report structure, rejects suite-level failures or non-zero vitest exits with zero assertion failures, and exits non-zero on `RED`; `server/full-test-script.test.ts` (new, 189 lines) exercises synthetic reports (clean, allowed failure, unexpected failure, suite load error, truncated JSON, missing/stale file).
 Why: `full-test.sh` captured vitest's exit status `$v` without checking it, ignored JSON parser failures, and exited 0 after printing `RED`. Core files touched: 0 (1 test file added).

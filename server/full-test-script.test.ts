@@ -210,3 +210,57 @@ describe("inhouse/full-test.sh result parsing and gate", () => {
     expect(res.log).toContain(`== RED ${res.sha}`);
   });
 });
+
+describe("inhouse/release.sh", () => {
+  const releaseScriptPath = join(repoRoot, "inhouse/release.sh");
+
+  it("refuses --to 204 with a one-line message and touches nothing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "omb-release-test-"));
+    mkdirSync(join(dir, "inhouse/logs"), { recursive: true });
+    writeFileSync(join(dir, "inhouse/release.sh"), readFileSync(releaseScriptPath, "utf8"), { mode: 0o755 });
+    writeFileSync(join(dir, "inhouse/build.sh"), "#!/usr/bin/env bash\ntouch \"$PWD/touched\"\n", { mode: 0o755 });
+
+    const res = spawnSync("bash", [join(dir, "inhouse/release.sh"), "--to", "204"], {
+      cwd: dir,
+      env: { ...process.env, FORCE: "1" },
+      encoding: "utf8",
+    });
+
+    expect(res.status).toBe(2);
+    expect(res.stdout).toBe("");
+    const stderrLines = res.stderr.trim().split("\n");
+    expect(stderrLines).toHaveLength(1);
+    expect(stderrLines[0]).toContain("refused:");
+    expect(stderrLines[0]).toContain("204");
+    expect(existsSync(join(dir, "touched"))).toBe(false);
+    removeTempDir(dir);
+  });
+
+  it("runs local build, install, and restart when green mark matches HEAD", () => {
+    const dir = mkdtempSync(join(tmpdir(), "omb-release-ok-"));
+    const binDir = join(dir, "bin");
+    mkdirSync(join(dir, "inhouse/logs"), { recursive: true });
+    mkdirSync(binDir, { recursive: true });
+    writeFileSync(join(dir, "inhouse/release.sh"), readFileSync(releaseScriptPath, "utf8"), { mode: 0o755 });
+    writeFileSync(join(dir, "inhouse/logs/full-test.ok"), "abc123456\n");
+    writeFileSync(join(dir, "inhouse/build.sh"), "#!/usr/bin/env bash\necho build >> \"$PWD/steps\"\n", { mode: 0o755 });
+    writeFileSync(join(dir, "inhouse/install-fork.sh"), "#!/usr/bin/env bash\necho install >> \"$PWD/steps\"\n", { mode: 0o755 });
+    writeFileSync(join(binDir, "git"), "#!/usr/bin/env bash\nif [ \"$1\" = \"rev-parse\" ]; then echo abc123456; exit 0; fi\nexit 0\n", { mode: 0o755 });
+    writeFileSync(join(binDir, "sudo"), "#!/usr/bin/env bash\necho \"sudo $*\" >> \"$PWD/steps\"\n", { mode: 0o755 });
+
+    const res = spawnSync("bash", [join(dir, "inhouse/release.sh")], {
+      cwd: dir,
+      env: { ...process.env, PATH: `${binDir}:${process.env.PATH ?? ""}` },
+      encoding: "utf8",
+    });
+
+    expect(res.status).toBe(0);
+    expect(readFileSync(join(dir, "steps"), "utf8").trim().split("\n")).toEqual([
+      "build",
+      "install",
+      "sudo systemctl restart openmausbot",
+    ]);
+    removeTempDir(dir);
+  });
+});
+
