@@ -2,6 +2,16 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — Tracked risk: loopback service trust
+What: documented the loopback service-trust posture from `server/request-auth.ts:35-38`:
+> Open risk: a bot's shell is a loopback caller too, so it can do everything the Slack worker does: post into any bot's thread through the guarded route, including an existing Full-access thread, open new Full-access threads while the operator's shared Full access is on, stop a request and decline a card. Planned fix: a relay token only the Slack worker holds, so these routes stop answering session-less loopback.
+On VM 205 the bots' shells are loopback callers, so a bot with shell access can reach every other bot's threads. The interim stance is that shell access is granted knowingly, and the fix is upstream's planned relay token. Core files touched: 0 (no code change).
+
+## 2026-11-08 — split double import in `server/index.ts` (**upstream-shaped**)
+What: `server/index.ts` (+2/-1 lines) places `import { seedStarterNotes } from "./starter-notes.ts";` on its own line instead of sharing line 393 with `./new-bot-defaults.ts`.
+Why: commit `7741d3544` put two imports on one line. Core files touched: 1 (`server/index.ts`, +2/-1 lines). **upstream-shaped**.
+Verify: `pnpm typecheck` and `scripts/testing/file-size-ratchet.test.ts` pass. Kill question: upstream-shaped formatting cleanup — stands.
+
 ## 2026-11-08 — `vite.config.ts` calls `productNamePage()` once
 What: `vite.config.ts` (+2/-1 lines) stores the `productNamePage()` plugin instance and spreads it conditionally instead of invoking `productNamePage()` twice.
 Why: line 75 called `productNamePage() ? [productNamePage()!] : []`, creating a duplicate plugin instance on every build. Core files touched: 1 (`vite.config.ts`, +2/-1 lines).
