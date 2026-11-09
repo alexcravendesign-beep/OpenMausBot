@@ -1,0 +1,17 @@
+{
+  "id": "versioned-brief",
+  "name": "Versioned Brief",
+  "version": "1.0.0",
+  "description": "Keep one versioned job brief across a multi-bot team, track per-participant revision acknowledgements, and propagate corrections without widening permissions",
+  "defaultEnabled": true,
+  "triggerTerms": [
+    "/versioned-brief",
+    "versioned brief",
+    "brief revision",
+    "correct the brief",
+    "update the brief",
+    "acknowledge the brief",
+    "who acknowledged the brief"
+  ],
+  "requiredCapabilities": []
+}

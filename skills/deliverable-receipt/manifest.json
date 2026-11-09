@@ -1,0 +1,16 @@
+{
+  "id": "deliverable-receipt",
+  "name": "Deliverable Receipt",
+  "version": "1.0.0",
+  "description": "Attach a versioned deliverable receipt to a job with brief revision provenance, distinct draft/reviewed/published states, and review evidence rendered via chat cards or pages",
+  "defaultEnabled": true,
+  "triggerTerms": [
+    "/deliverable-receipt",
+    "deliverable receipt",
+    "job receipt",
+    "deliverable versions",
+    "attach deliverable",
+    "review receipt"
+  ],
+  "requiredCapabilities": []
+}

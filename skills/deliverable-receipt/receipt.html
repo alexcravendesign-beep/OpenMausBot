@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deliverable Receipt</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1419;
+      --card: #182028;
+      --border: #2a3644;
+      --text: #e7eef5;
+      --muted: #95a5b5;
+      --accent: #38bdf8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .version-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .evidence {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div id="receipt-root"></div>
+  <script id="embedded-data" type="application/json">
+  {
+    "jobId": "job-example",
+    "title": "Deliverable Receipt",
+    "latestVersion": 1,
+    "versions": []
+  }
+  </script>
+  <script>
+    const raw = document.getElementById("embedded-data")?.textContent || "{}";
+    const data = JSON.parse(raw);
+    const root = document.getElementById("receipt-root");
+    const versions = Array.isArray(data.versions) ? [...data.versions].reverse() : [];
+    root.innerHTML = `
+      <div class="header">
+        <div>
+          <h2 style="margin:0">${data.title || "Deliverable"}</h2>
+          <div class="meta">Job: <code>${data.jobId || "unknown"}</code> · Latest: v${data.latestVersion || 1}</div>
+        </div>
+      </div>
+      ${versions.map((v) => `
+        <div class="version-card" data-version="${v.version}" data-brief-rev="${v.briefRevision}">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <strong>v${v.version}: ${v.title}</strong>
+            <div>
+              <span class="badge">Brief rev ${v.briefRevision}</span>
+              <span class="badge">${v.state}</span>
+              <span class="badge">${v.public ? "Public" : "Private (not public)"}</span>
+            </div>
+          </div>
+          <div class="meta">File/Link: <code>${v.fileOrLink}</code> · Produced by: ${v.producedBy || "bot"}</div>
+          ${v.reviewerOutcome ? `
+            <div class="evidence">
+              <strong>Review (${v.reviewerOutcome.reviewer} — ${v.reviewerOutcome.decision}):</strong>
+              ${v.reviewerOutcome.evidence}
+            </div>
+          ` : `<div class="meta">Unreviewed draft</div>`}
+        </div>
+      `).join("")}
+    `;
+  </script>
+</body>
+</html>
