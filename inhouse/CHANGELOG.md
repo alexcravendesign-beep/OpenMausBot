@@ -2,6 +2,11 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-08 — `vite.config.ts` calls `productNamePage()` once
+What: `vite.config.ts` (+2/-1 lines) stores the `productNamePage()` plugin instance and spreads it conditionally instead of invoking `productNamePage()` twice.
+Why: line 75 called `productNamePage() ? [productNamePage()!] : []`, creating a duplicate plugin instance on every build. Core files touched: 1 (`vite.config.ts`, +2/-1 lines).
+Verify: `VITE_PRODUCT_NAME=Alex pnpm exec vite build` writes `<title>Alex</title>` into `dist/index.html` and `"name": "Alex"` into `dist/manifest.webmanifest`. Kill question: in-house build config cleanup — stands.
+
 ## 2026-11-08 — delete five tracked scratch `.mjs` files and ignore their folder (**upstream-shaped**)
 What: deleted the five tracked scratch files (`ext.mjs`, `r.mjs`, `r.mjs.bak`, `r.mjs.bak2`, `run.mjs`) from the temporary experiment folder and added the folder to `.gitignore` (+1 line).
 Why: five scratch scripts came in with an upstream commit and nothing references them. Core files touched: 1 (`.gitignore`, +1 line). **upstream-shaped**.

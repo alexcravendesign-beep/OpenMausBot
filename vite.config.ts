@@ -71,8 +71,10 @@ const include = [
   "scripts/**/*.test.ts",
 ];
 
+const productName = productNamePage();
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), railPage(), ...(productNamePage() ? [productNamePage()!] : [])],
+  plugins: [react(), tailwindcss(), railPage(), ...(productName ? [productName] : [])],
   build: {
     rollupOptions: { input: { index: page("./index.html"), rail: page("./rail.html") } },
   },
