@@ -42,5 +42,4 @@ deploy/podman/.env.*
 /.env
 release/
 inhouse/logs/
-.tmp[e]xp/
-
+.tmpexp/
