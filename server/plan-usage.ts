@@ -8,6 +8,7 @@ import type { InstanceConfigMap } from "./contracts.ts";
 import { resolveClaudeConfigDir } from "./drivers/claude.ts";
 import { codexHome } from "./drivers/codex-identity.ts";
 import { harnessHome, sealedFixture } from "./env-path.ts";
+import { billsEachUse } from "./limit-failover.ts";
 
 export type PlanDriver = "claude" | "codex" | "grok" | "opencode";
 
@@ -72,7 +73,7 @@ export interface PlanAccount {
   driver: PlanDriver;
   environment: Record<string, string | undefined>;
   configDir?: string;
-  /** Signed in through OpenMausBot (ChatGPT plan), not a CLI login on disk, so it has no usage reading. */
+  /** No usage reading: a ChatGPT-plan sign-in or a pay-per-use key. The CLI login on disk is another account's plan limit. */
   noUsage?: true;
 }
 
@@ -163,8 +164,7 @@ export function planAccountsFromInstances(instances: InstanceConfigMap): PlanAcc
       driver,
       environment: { ...entry.environment },
       ...(configDir ? { configDir } : {}),
-      // Reading ~/.codex/auth.json for a ChatGPT-plan provider would report (and hold it on) another account's limit.
-      ...(config?.authMode === "chatgpt-plan" ? { noUsage: true as const } : {}),
+      ...(config?.authMode === "chatgpt-plan" || billsEachUse(entry) ? { noUsage: true as const } : {}),
     });
   }
   return accounts;

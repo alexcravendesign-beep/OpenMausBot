@@ -2,6 +2,19 @@
 
 One entry per feature, newest first. Format: date, title, what, why, core files touched (count + lines), how to verify, kill-question answers.
 
+## 2026-11-10 — a pay-per-use Claude engine is no longer held by the plan's usage limit (**upstream-shaped**)
+What: `server/plan-usage.ts` (+2/-2 lines, file stays at its 1,046-line pin) marks an engine that bills each use
+(`access: "api"`, or a pay-per-use key in its environment; `billsEachUse` from `server/limit-failover.ts`) as `noUsage`,
+the flag the ChatGPT-plan sign-in already had. `server/plan-usage.test.ts` (+17) covers Claude (API key), a keyed Claude
+instance and a keyed Codex instance, and that no usage read is made for them.
+Why: on 10 Nov the Teams plan hit its 5-hour limit, Nick moved ALEX to "Claude (API key)", and every turn went to Codex
+in the same second: "Claude (API key) hit its limit (resets 4:09 PM), so Codex took over". `planAccountsFromInstances`
+made a plan account for every Claude CLI engine and read the login on disk, so the key engine reported the Teams
+account's 5-hour window as 100% used and blocked (`/api/limit-resets`). The key was never tried. Core files touched: 1.
+Verify: `pnpm exec vitest run server/plan-usage.test.ts` (the new case fails without the fix); on the box
+`/api/limit-resets` no longer lists "Claude (API key)" as blocked while "Claude" is. Kill question: upstream bug, every
+install with a Claude sign-in and an Anthropic key has it; worth a PR to upstream.
+
 ## 2026-11-08 — Tracked risk: loopback service trust
 What: documented the loopback service-trust posture from `server/request-auth.ts:35-38`:
 > Open risk: a bot's shell is a loopback caller too, so it can do everything the Slack worker does: post into any bot's thread through the guarded route, including an existing Full-access thread, open new Full-access threads while the operator's shared Full access is on, stop a request and decline a card. Planned fix: a relay token only the Slack worker holds, so these routes stop answering session-less loopback.

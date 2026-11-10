@@ -501,6 +501,23 @@ describe("plan usage fetcher", () => {
     ]);
   });
 
+/** A pay-per-use engine shares the CLI login on disk with the plan engine; the plan's 5-hour limit is not its limit. */
+  it("takes no usage reading for an engine that bills each use, so a plan limit never holds it", async () => {
+    const accounts = planAccountsFromInstances({
+      claude: { driver: "claudeAgent" },
+      claudeApi: { driver: "claudeAgent", displayName: "Claude (API key)", access: "api", config: { requireApiKey: true } },
+      keyed: { driver: "claudeAgent", environment: { ANTHROPIC_API_KEY: SECRET } },
+      codexKeyed: { driver: "codex", environment: { OPENAI_API_KEY: SECRET } },
+    });
+    expect(accounts.map((account) => [account.id, account.noUsage === true])).toEqual([
+      ["claude", false], ["claudeApi", true], ["keyed", true], ["codexKeyed", true],
+    ]);
+    const fetchImpl = vi.fn<PlanFetch>(async () => { throw new Error("a pay-per-use engine must not be read"); });
+    const report = await loadPlanUsage({ accounts: accounts.filter((account) => account.noUsage), refresh: true, fetch: fetchImpl, now: NOW });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(report.providers).toEqual([]);
+  });
+
 /** An OpenCode instance becomes an account under the driver the panel knows. */
   it("lists an OpenCode instance under the key its environment carries", () => {
     expect(planAccountsFromInstances({
